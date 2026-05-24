@@ -43,6 +43,14 @@ const schedule = {
 
 // Majorant pour un client professionnel
 const professionalExtra = 10;
+const VAT_RATE = 1.20;
+
+function applyTax(htPrice){
+  return document.getElementById('showTTC')?.checked ? Math.round(htPrice * VAT_RATE * 100) / 100 : htPrice;
+}
+function priceSuffix(){
+  return document.getElementById('showTTC')?.checked ? '€/h TTC' : '€/h HT';
+}
 
 const dayNames = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
 
@@ -59,6 +67,10 @@ function timeToMinutes(hm){
 function buildTable(){
   const container = document.getElementById('table-container');
   const isProfessional = document.getElementById('isProfessional')?.checked;
+  const notice = document.querySelector('.ht-notice');
+  if(notice) notice.innerHTML = document.getElementById('showTTC')?.checked
+    ? 'Tarifs <strong>toutes taxes comprises (TTC)</strong> — TVA 20% incluse'
+    : 'Tarifs <strong>hors taxes (HT)</strong> — TVA 20% en sus';
   const table = document.createElement('table');
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
@@ -87,12 +99,12 @@ function buildTable(){
       tdMerged.colSpan = 3;
       tdMerged.className = 'period-evening';
       tdMerged.style.textAlign = 'center';
-      tdMerged.textContent = (p00.price + (isProfessional?professionalExtra:0)) + '€/h';
+      tdMerged.textContent = applyTax(p00.price + (isProfessional?professionalExtra:0)) + priceSuffix();
       row.appendChild(tdMerged);
     } else {
-      const td00 = document.createElement('td'); td00.className='period-early'; td00.textContent = p00 ? (p00.price + (isProfessional?professionalExtra:0))+'€/h' : '-';
-      const td07 = document.createElement('td'); td07.className='period-day'; td07.textContent = p07 ? (p07.price + (isProfessional?professionalExtra:0))+'€/h' : '-';
-      const td19 = document.createElement('td'); td19.className='period-evening'; td19.textContent = p19 ? (p19.price + (isProfessional?professionalExtra:0))+'€/h' : '-';
+      const td00 = document.createElement('td'); td00.className='period-early'; td00.textContent = p00 ? applyTax(p00.price + (isProfessional?professionalExtra:0))+priceSuffix() : '-';
+      const td07 = document.createElement('td'); td07.className='period-day'; td07.textContent = p07 ? applyTax(p07.price + (isProfessional?professionalExtra:0))+priceSuffix() : '-';
+      const td19 = document.createElement('td'); td19.className='period-evening'; td19.textContent = p19 ? applyTax(p19.price + (isProfessional?professionalExtra:0))+priceSuffix() : '-';
       row.appendChild(td00); row.appendChild(td07); row.appendChild(td19);
     }
     tbody.appendChild(row);
@@ -101,7 +113,7 @@ function buildTable(){
   // ligne jours fériés
   const rowHoliday = document.createElement('tr');
   rowHoliday.appendChild(document.createElement('th')).textContent = 'Jours fériés';
-  const tdAll = document.createElement('td'); tdAll.colSpan = 3; tdAll.className = 'period-evening'; tdAll.style.textAlign = 'center'; tdAll.textContent = (schedule.holidayPrice + (isProfessional?professionalExtra:0)) + '€/h';
+  const tdAll = document.createElement('td'); tdAll.colSpan = 3; tdAll.className = 'period-evening'; tdAll.style.textAlign = 'center'; tdAll.textContent = applyTax(schedule.holidayPrice + (isProfessional?professionalExtra:0)) + priceSuffix();
   rowHoliday.appendChild(tdAll);
   tbody.appendChild(rowHoliday);
 
@@ -169,11 +181,11 @@ function updateRealtime(){
   document.getElementById('now').textContent = `Il est ${nowFormatted(now)}`;
   const dayIndex = now.getDay();
   const cur = findCurrentPeriod(dayIndex, now, isHoliday);
-  const adjustedPrice = cur.price + (isProfessional?professionalExtra:0);
+  const adjustedPrice = applyTax(cur.price + (isProfessional?professionalExtra:0));
   const until = cur.until;
   const untilStr = until ? until.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '-';
   const who = isProfessional ? 'Professionnel' : 'Particulier';
-  const rateText = `(${who}) Le tarif est de ${adjustedPrice}€/h jusqu'à ${untilStr}`;
+  const rateText = `(${who}) Le tarif est de ${adjustedPrice}${priceSuffix()} jusqu'à ${untilStr}`;
   const el = document.getElementById('current-rate');
   el.textContent = rateText;
   // appliquer couleur du prix du tableau comme fond de la boîte
@@ -315,4 +327,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
   if(prof){
     prof.addEventListener('change', ()=>{ buildTable(); updateRealtime(); });
   }
+  const ttc = document.getElementById('showTTC');
+  if(ttc){
+    ttc.addEventListener('change', ()=>{ buildTable(); updateRealtime(); });
+  }
 });
+

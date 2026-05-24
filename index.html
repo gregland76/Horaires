@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Horaires & Tarifs (temps réel)</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main>
+      <h1>Horaires & Tarifs — Affichage en temps réel</h1>
+
+      <section id="realtime">
+        <div id="now"></div>
+        <div id="current-rate"></div>
+      </section>
+
+      <section>
+        <span id="holidayStatus"></span>
+        <label><input type="checkbox" id="isProfessional"> Cochez si vous êtes un professionnel (+10€/h)</label>
+      </section>
+
+      <section>
+        <h2>Tableau des tarifs</h2>
+        <div id="table-container"></div>
+      </section>
+
+      <footer>
+        <p>&copy; <span id="copyright-year"></span> Grégory HARGOUS — Tous droits réservés</p>
+      </footer>
+    </main>
+
+    <script>document.getElementById('copyright-year').textContent = new Date().getFullYear();</script>
+    <script src="script.js"></script>
+  </body>
+</html>

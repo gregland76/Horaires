@@ -1,0 +1,69 @@
+:root{
+  --bg:#fff;
+  --muted:#666;
+  --green:#e8f8ea;
+  --pink:#fdecea;
+  --orange:#fff0e0;
+  --border:#cfcfcf;
+  --price-early-color:#b35900;
+  --price-day-color:#166b2b;
+  --price-evening-color:#9b2a2a;
+}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial; background:var(--bg); color:#111; padding:24px}
+main{max-width:900px;margin:0 auto}
+h1{margin-bottom:8px}
+#realtime{display:flex;gap:16px;align-items:baseline;margin-bottom:12px}
+#now{font-weight:600}
+#current-rate{font-size:1.1rem;padding:8px 12px;border-radius:6px;border:1px solid var(--border)}
+label{display:inline-flex;align-items:center;gap:8px;margin-bottom:12px}
+#holidayStatus{display:inline-block;padding:4px 12px;border-radius:6px;font-weight:600;margin-bottom:12px;margin-right:16px}
+.holiday-yes{background:#fde68a;color:#92400e}
+.holiday-no{background:#d1fae5;color:#065f46}
+#table-container{overflow:auto;border:1px solid var(--border);border-radius:8px;padding:8px}
+table{border-collapse:collapse;width:100%}
+th,td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:left}
+th{background:#fafafa}
+.period-early{background:var(--orange); color:var(--price-early-color)}
+.period-day{background:var(--green); color:var(--price-day-color)}
+.period-evening{background:var(--pink); color:var(--price-evening-color)}
+/* cellule courante en gras */
+
+/* Effet visuel supplémentaire pour la cellule courante */
+.current-cell{font-weight:700}
+
+/* Effet visuel: une seule bordure autour de la cellule via box-shadow */
+
+.current-cell{
+  font-weight:700;
+  position:relative;
+  border:none !important;
+  /* shadow only, border drawn by pseudo-element to ensure single visible border */
+  box-shadow:0 8px 20px rgba(0,0,0,0.08);
+  border-radius:6px;
+  transition:box-shadow .18s ease, transform .12s ease;
+  transform:translateY(-2px);
+  z-index:9999;
+  overflow:visible;
+}
+
+/* draw a single black border around the cell using a pseudo-element */
+.current-cell::after{
+  content: '';
+  position: absolute;
+  left: -2px; right: -2px; top: -2px; bottom: -2px;
+  border: 2px solid #000;
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+/* léger focus au survol pour rendre interactif */
+.current-cell:hover{
+  box-shadow:0 12px 28px rgba(0,0,0,0.12);
+  transform:translateY(-3px);
+}
+
+/* supprimer la bordure supérieure de la cellule en dessous pour éviter double bordure */
+.no-top-border{border-top:none !important}
+footer{margin-top:12px;color:var(--muted)}
+
+.pill{display:inline-block;padding:6px 10px;border-radius:999px;background:transparent;border:1px solid var(--border)}

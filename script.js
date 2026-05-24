@@ -4,8 +4,8 @@ const schedule = {
   // jours: 0 = dimanche, 1 = lundi, ..., 6 = samedi
   0: [ // Dimanche
     {start: '00:00', end: '07:00', price: 90},
-    {start: '07:00', end: '19:00', price: 40},
-    {start: '19:00', end: '24:00', price: 60}
+    {start: '07:00', end: '19:00', price: 90},
+    {start: '19:00', end: '24:00', price: 90}
   ],
   1: [ // Lundi
     {start: '00:00', end: '07:00', price: 90},
@@ -38,7 +38,7 @@ const schedule = {
     {start: '19:00', end: '24:00', price: 60}
   ],
   // Tarif jour férié (override)
-  holidayPrice: 90
+  holidayPrice: 100
 };
 
 // Majorant pour un client professionnel
@@ -80,18 +80,28 @@ function buildTable(){
     const p07 = periods.find(p => timeToMinutes(p.start) === 420 && timeToMinutes(p.end)===1140);
     const p19 = periods.find(p => timeToMinutes(p.start) === 1140 && timeToMinutes(p.end)===1440);
 
-    const td00 = document.createElement('td'); td00.className='period-early'; td00.textContent = p00 ? (p00.price + (isProfessional?professionalExtra:0))+'€/h' : '-';
-    const td07 = document.createElement('td'); td07.className='period-day'; td07.textContent = p07 ? (p07.price + (isProfessional?professionalExtra:0))+'€/h' : '-';
-    const td19 = document.createElement('td'); td19.className='period-evening'; td19.textContent = p19 ? (p19.price + (isProfessional?professionalExtra:0))+'€/h' : '-';
-
-    row.appendChild(td00); row.appendChild(td07); row.appendChild(td19);
+    // Fusionner les colonnes si tous les tarifs sont identiques
+    const allSame = p00 && p07 && p19 && p00.price === p07.price && p07.price === p19.price;
+    if (allSame) {
+      const tdMerged = document.createElement('td');
+      tdMerged.colSpan = 3;
+      tdMerged.className = 'period-evening';
+      tdMerged.style.textAlign = 'center';
+      tdMerged.textContent = (p00.price + (isProfessional?professionalExtra:0)) + '€/h';
+      row.appendChild(tdMerged);
+    } else {
+      const td00 = document.createElement('td'); td00.className='period-early'; td00.textContent = p00 ? (p00.price + (isProfessional?professionalExtra:0))+'€/h' : '-';
+      const td07 = document.createElement('td'); td07.className='period-day'; td07.textContent = p07 ? (p07.price + (isProfessional?professionalExtra:0))+'€/h' : '-';
+      const td19 = document.createElement('td'); td19.className='period-evening'; td19.textContent = p19 ? (p19.price + (isProfessional?professionalExtra:0))+'€/h' : '-';
+      row.appendChild(td00); row.appendChild(td07); row.appendChild(td19);
+    }
     tbody.appendChild(row);
   }
 
   // ligne jours fériés
   const rowHoliday = document.createElement('tr');
   rowHoliday.appendChild(document.createElement('th')).textContent = 'Jours fériés';
-  const tdAll = document.createElement('td'); tdAll.colSpan = 3; tdAll.className = 'period-evening'; tdAll.textContent = (schedule.holidayPrice + (isProfessional?professionalExtra:0)) + '€/h';
+  const tdAll = document.createElement('td'); tdAll.colSpan = 3; tdAll.className = 'period-evening'; tdAll.style.textAlign = 'center'; tdAll.textContent = (schedule.holidayPrice + (isProfessional?professionalExtra:0)) + '€/h';
   rowHoliday.appendChild(tdAll);
   tbody.appendChild(rowHoliday);
 
@@ -292,7 +302,6 @@ function isFrenchHoliday(date) {
     easter,                        // Dimanche de Pâques
     new Date(ms + day1),           // Lundi de Pâques
     new Date(ms + 39 * day1),      // Ascension
-    new Date(ms + 49 * day1),      // Dimanche de Pentecôte
     new Date(ms + 50 * day1),      // Lundi de Pentecôte
   ];
   return movable.some(h => h.getFullYear() === y && h.getMonth() + 1 === m && h.getDate() === d);
